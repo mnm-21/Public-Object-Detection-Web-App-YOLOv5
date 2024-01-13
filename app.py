@@ -75,7 +75,7 @@ def predictions(image):
         classes_id = classes[ind]
         class_name = labels[classes_id]
         colours = generate_colours(classes_id)
-        text = f'{class_name}: {bb_conf}'
+        text = f'{class_name}.: {bb_conf}'
         cv2.rectangle(image, (x, y), (x + w, y + h), colours, 2)
         cv2.rectangle(image, (x, y - 30), (x + w, y), colours, -1)
         cv2.putText(image, text, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 1)
@@ -190,6 +190,7 @@ if selection == 'Picture':
 
             # Display the annotated image
             st.image(annotated_image, caption="Annotated Image", use_column_width=True)
+
             output_path = "annotated_" + upload.name  # Modify the output path to include "annotated" prefix
             cv2.imwrite(output_path, annotated_image)
     
@@ -218,19 +219,21 @@ if selection == 'Video':
         file_extension = video_upload.name.split(".")[-1].lower()
 
         if file_extension == "mp4":
+            # Save the uploaded video to a temporary file
+            temp_video_path = os.path.join(extract_path, 'temp_video.mp4')
+            with open(temp_video_path, 'wb') as temp_video_file:
+                temp_video_file.write(video_upload.read())
+
             # Process video and get the output path
-            output_video_path = process_video(video_upload)
+            output_video_path = process_video(temp_video_path)
 
             # Display the output video using Streamlit
             video_file = open(output_video_path, 'rb')
             video_bytes = video_file.read()
             st.video(video_bytes)
-
+            os.remove(temp_video_path)
         else:
             st.warning("Unsupported file format. Please upload a video (mp4).")
-
-    
-
 
 
 
