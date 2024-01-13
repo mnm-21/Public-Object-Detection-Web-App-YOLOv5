@@ -111,16 +111,25 @@ def generate_colours(ID):
     return color_map[ID]
 
 def process_video(video_path):
+    if not os.path.exists(video_path):
+        st.warning(f"The provided video file '{video_path}' does not exist.")
+        return None
+
+    # Open the input video file for processing
     cap = cv2.VideoCapture(video_path)
+
+    if not cap.isOpened():
+        st.error("Error opening video file.")
+        return None
 
     # Get video properties
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
 
-    # Create VideoWriter object to save the output video
-    out_path = os.path.join(extract_path, 'output_video.avi')
-    out = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*'XVID'), fps, (width, height))
+    out_path = os.path.join(extract_path, 'output_video.mp4')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
+    out = cv2.VideoWriter(out_path, fourcc, fps, (width, height))
 
     while True:
         ret, frame = cap.read()
@@ -135,6 +144,7 @@ def process_video(video_path):
     out.release()
 
     return out_path
+
     
 with st.sidebar:
     selection = option_menu('Object Detection Using YOLOv5',
@@ -227,15 +237,12 @@ if selection == 'Video':
             # Process video and get the output path
             output_video_path = process_video(temp_video_path)
             print(output_video_path)
-            # Display the output video using Streamlit
-            '''video_file = open(output_video_path, 'rb')
-            video_bytes = video_file.read()
-            if output_video_path:
-                #st.video(output_video_path)'''
+
             st.download_button(
                     label="Download Annotated Video",
                     data=output_video_path,
-                    file_name="annotated_video.mp4",
+                    file_name=output_video_path,
+                    key="download_button"
                 )
             #st.video(video_bytes)
             os.remove(temp_video_path)
