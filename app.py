@@ -230,7 +230,9 @@ if selection == 'Video':
             # Display the output video using Streamlit
             video_file = open(output_video_path, 'rb')
             video_bytes = video_file.read()
-            st.video(video_bytes)
+            if output_video_path:
+                st.video(output_video_path)
+            #st.video(video_bytes)
             os.remove(temp_video_path)
         else:
             st.warning("Unsupported file format. Please upload a video (mp4).")
