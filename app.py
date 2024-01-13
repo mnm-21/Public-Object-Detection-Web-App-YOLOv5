@@ -179,16 +179,17 @@ if selection == 'Picture':
         file_extension = upload.name.split(".")[-1].lower()
 
         if file_extension in ["png", "jpg", "jpeg"]:
-            # For images
-            img = cv2.imread(upload)
+            img = Image.open(upload)
             st.image(img, caption="Uploaded Image", use_column_width=True)
+
+            # Convert to OpenCV format (only if needed, remove if your model works with RGB)
+            image_cv = np.array(img)
 
             # Make predictions and get annotated image
             annotated_image = predictions(image_cv)
 
             # Display the annotated image
             st.image(annotated_image, caption="Annotated Image", use_column_width=True)
-
             output_path = "annotated_" + upload.name  # Modify the output path to include "annotated" prefix
             cv2.imwrite(output_path, annotated_image)
     
