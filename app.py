@@ -75,7 +75,7 @@ def predictions(image):
         classes_id = classes[ind]
         class_name = labels[classes_id]
         colours = generate_colours(classes_id)
-        text = f'{class_name}: {bb_conf}'
+        text = f'{class_name}.upper(): {bb_conf}'
         cv2.rectangle(image, (x, y), (x + w, y + h), colours, 2)
         cv2.rectangle(image, (x, y - 30), (x + w, y), colours, -1)
         cv2.putText(image, text, (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 1)
@@ -110,6 +110,32 @@ def generate_colours(ID):
     # Using the color map based on the class ID
     return color_map[ID]
 
+def process_video(video_path):
+    cap = cv2.VideoCapture(video_path)
+
+    # Get video properties
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    # Create VideoWriter object to save the output video
+    out_path = os.path.join(extract_path, 'output_video.avi')
+    out = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*'XVID'), fps, (width, height))
+
+    while True:
+        ret, frame = cap.read()
+
+        if not ret:
+            break
+
+        result_frame = predictions(frame)
+        out.write(result_frame)
+
+    cap.release()
+    out.release()
+
+    return out_path
+    
 with st.sidebar:
     selection = option_menu('Object Detection Using YOLOv5',
                             
@@ -117,7 +143,7 @@ with st.sidebar:
                              'Picture',
                              'Video'],
                             
-                            icons = ['house-door-fill','capsule','heart-pulse-fill'],
+                            icons = ['house-door-fill','image','camera-reels'],
                             
                             default_index = 0)
     
@@ -154,11 +180,8 @@ if selection == 'Picture':
 
         if file_extension in ["png", "jpg", "jpeg"]:
             # For images
-            img = Image.open(upload)
+            img = cv2.imread(upload)
             st.image(img, caption="Uploaded Image", use_column_width=True)
-
-            # Convert to OpenCV format (only if needed, remove if your model works with RGB)
-            image_cv = np.array(img)
 
             # Make predictions and get annotated image
             annotated_image = predictions(image_cv)
@@ -178,6 +201,32 @@ if selection == 'Picture':
 
         else:
             st.warning("Unsupported file format. Please upload an image (png, jpg, jpeg).")
+
+if selection == 'Video':
+    st.title('Object detection in video')
+
+    # File upload for video
+    video_upload = st.file_uploader(label="Upload Video Here:", type=["mp4"])
+
+    if video_upload:
+        # Sidebar customization for video
+        st.sidebar.subheader("File Details (Video):")
+        st.sidebar.text(f"File Name: {video_upload.name}")
+        st.sidebar.text(f"File Type: {video_upload.type}")
+
+        file_extension = video_upload.name.split(".")[-1].lower()
+
+        if file_extension == "mp4":
+            # Process video and get the output path
+            output_video_path = process_video(video_upload)
+
+            # Display the output video using Streamlit
+            video_file = open(output_video_path, 'rb')
+            video_bytes = video_file.read()
+            st.video(video_bytes)
+
+        else:
+            st.warning("Unsupported file format. Please upload a video (mp4).")
 
     
 
