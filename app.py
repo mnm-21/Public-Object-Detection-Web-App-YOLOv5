@@ -226,12 +226,17 @@ if selection == 'Video':
 
             # Process video and get the output path
             output_video_path = process_video(temp_video_path)
-
+            print(output_video_path)
             # Display the output video using Streamlit
-            video_file = open(output_video_path, 'rb')
+            '''video_file = open(output_video_path, 'rb')
             video_bytes = video_file.read()
             if output_video_path:
-                st.video(output_video_path)
+                #st.video(output_video_path)'''
+            st.download_button(
+                    label="Download Annotated Video",
+                    data=output_video_path,
+                    file_name="annotated_video.mp4",
+                )
             #st.video(video_bytes)
             os.remove(temp_video_path)
         else:
