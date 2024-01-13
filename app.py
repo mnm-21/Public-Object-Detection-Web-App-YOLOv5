@@ -217,11 +217,9 @@ if selection == 'Picture':
 if selection == 'Video':
     st.title('Object detection in video')
 
-    # File upload for video
     video_upload = st.file_uploader(label="Upload Video Here:", type=["mp4"])
 
     if video_upload:
-        # Sidebar customization for video
         st.sidebar.subheader("File Details (Video):")
         st.sidebar.text(f"File Name: {video_upload.name}")
         st.sidebar.text(f"File Type: {video_upload.type}")
@@ -236,18 +234,26 @@ if selection == 'Video':
 
             # Process video and get the output path
             output_video_path = process_video(temp_video_path)
-            print(output_video_path)
 
-            st.download_button(
+            if output_video_path:
+                # Display the output video using Streamlit
+                st.video(output_video_path)
+
+                # Provide a download button for the annotated video
+                st.download_button(
                     label="Download Annotated Video",
                     data=output_video_path,
-                    file_name=output_video_path,
-                    key="download_button"
+                    file_name="annotated_video.mp4",
                 )
-            #st.video(video_bytes)
-            os.remove(temp_video_path)
+
+                print(f"Temporary video file path: {temp_video_path}")
+
+            else:
+                st.error("Error processing video.")
+
         else:
             st.warning("Unsupported file format. Please upload a video (mp4).")
+
 
 
 
