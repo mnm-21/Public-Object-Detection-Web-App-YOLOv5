@@ -5,6 +5,7 @@ import numpy as np
 import os
 import streamlit as st
 from streamlit_option_menu import option_menu
+from PIL import Image
 
 extract_path = os.getcwd()
 os.path.join(extract_path, 'best.onnx')
@@ -116,7 +117,7 @@ with st.sidebar:
                              'Picture',
                              'Video'],
                             
-                            icons = ['house-door-fill','capsule','heart-pulse-fill','person'],
+                            icons = ['house-door-fill','capsule','heart-pulse-fill'],
                             
                             default_index = 0)
     
