@@ -153,8 +153,11 @@ if selection == 'Picture':
 
         if file_extension in ["png", "jpg", "jpeg"]:
             # For images
-            img = cv2.imread(upload)
+            img = Image.open(upload)
             st.image(img, caption="Uploaded Image", use_column_width=True)
+
+            # Convert to OpenCV format (only if needed, remove if your model works with RGB)
+            image_cv = np.array(img)
 
             # Make predictions and get annotated image
             annotated_image = predictions(image_cv)
